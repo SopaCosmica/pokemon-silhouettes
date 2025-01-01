@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Silhouette App</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let pokemonNames = [];
+
+        // Fetch Pokémon names from names.json on page load
+        $(document).ready(function () {
+            fetch('/static/names.json')
+                .then(response => response.json())
+                .then(data => {
+                    pokemonNames = data;
+                })
+                .catch(err => console.error("Failed to load Pokémon names:", err));
+        });
+
+        // Handle autocomplete as the user types
+        $(function () {
+            $("#query").on("input", function () {
+                let term = $(this).val().toLowerCase();
+                let suggestions = pokemonNames.filter(name => name.includes(term));
+
+                let suggestionList = $("#suggestions");
+                suggestionList.empty();
+
+                suggestions.forEach(function (item) {
+                    suggestionList.append(`<option value="${item}">`);
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <h1>Pokémon Silhouette Finder</h1>
+    <form method="get">
+        <label for="query">Enter Pokémon Name or Number:</label>
+        <input list="suggestions" type="text" id="query" name="query" required>
+        <datalist id="suggestions"></datalist>
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if silhouette %}
+    <div>
+        <h2>Here is the silhouette of {{ number }}: {{ name }}!</h2>
+        <img src="{{ silhouette }}" alt="Pokémon Silhouette" width="300">
+    </div>
+    {% elif query %}
+    <p>No silhouette found for "{{ query }}". Try again!</p>
+    {% endif %}
+</body>
+
+</html>
